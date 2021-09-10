@@ -1,0 +1,54 @@
+version: '3.7'
+
+services: 
+  website:
+    build: .
+    image: website:alpine
+    container_name: website
+    command: gunicorn system.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/home/app/website
+      - static_volume:/home/app/website/staticfiles
+      - media_volume:/home/app/website/mediafiles
+    expose:
+      - 8000
+    env_file:
+      - .env.app
+    depends_on:
+      - database
+    networks:
+      - system-network
+
+  database:
+    image: postgres:alpine
+    container_name: database
+    volumes:
+      - ./docker-compose/database:/docker-entrypoint-initdb.d/
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env.db
+    networks:
+      - system-network
+
+  webserver:
+    image: nginx:stable-alpine
+    container_name: webserver
+    volumes:
+      - ./docker-compose/webserver:/etc/nginx/conf.d
+      - static_volume:/home/app/website/staticfiles
+      - media_volume:/home/app/website/mediafiles
+    ports:
+      - 1337:80
+    depends_on:
+      - website
+    networks:
+      - system-network
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+networks: 
+  system-network:
+    driver: bridge
