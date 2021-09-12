@@ -80,5 +80,4 @@ __pycache__/
 staticfiles
 mediafiles
 
-.env.app
-.env.db
+.env
