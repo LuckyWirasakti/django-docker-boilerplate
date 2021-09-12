@@ -39,7 +39,11 @@ DEFAULT_APPS = [
     'django.contrib.staticfiles',
 ]
 
-INSTALLED_APPS = DEFAULT_APPS
+THIRD_PARTY_APPS = [
+    'django_celery_results',
+]
+
+INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -139,10 +143,32 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' if DEBUG == True else 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', default='no-reply@system.admin')
-EMAIL_HOST = os.environ.get('EMAIL_HOST', default='smtp.mailtrap.io')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', default=2525))
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', default='')
-EMAIL_USE_TLS = bool(os.environ.get('EMAIL_USE_TLS', default=True))
-EMAIL_USE_SSL = bool(os.environ.get('EMAIL_USE_SSL', default=True))
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = bool(os.environ.get('EMAIL_USE_TLS'))
+EMAIL_USE_SSL = bool(os.environ.get('EMAIL_USE_SSL'))
+
+# Celery Configuration Options
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND')
+CELERY_CACHE_BACKEND = 'default'
+
+# Cache Configuration Options
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get('CACHES_LOCATION_URL'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}

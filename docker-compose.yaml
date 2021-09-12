@@ -30,6 +30,12 @@ services:
     networks:
       - system-network
 
+  message:
+    image: redis:alpine
+    container_name: message
+    networks:
+      - system-network
+
 volumes:
   postgres_data:
 
